@@ -1,0 +1,6 @@
+F540:Priority continues from future to present and present to future:2025-07-29
+N216:Add Recurrence
+P585:Max char is 104 not 48:2025-07-28
+P418:Fix the main switch:2025-07-28
+P539:Fix the if else code in the display methods:2025-07-28
+P845:Add priority:2025-07-28
