@@ -10,16 +10,17 @@ import java.util.Collections;
 public class Present extends ToDo implements Comparable<Present> {
 
     private String code;
-    private boolean daily,weekly;
     private static ArrayList<Present> alPre = new ArrayList<>();
 
-    public Present(String task, String code) {//Scanner 
+    public Present(String task, String code, boolean daily, boolean weekly) {//Scanner 
         this.setTask(task);
         this.setCode(code);
+        this.setDaily(daily);
+        this.setWeekly(weekly);
         alPre.add(this);
     }
     
-    public Present(String task, boolean daily, boolean weekly){//New with recurence
+    public Present(String task, boolean daily, boolean weekly){//Change down with recurence
         this.setTask(task);
         this.setCode(randomCode());
         this.setDaily(daily);
@@ -45,7 +46,7 @@ public class Present extends ToDo implements Comparable<Present> {
         for (Present pre : alPre) {
             pre.setPriority(0);
             double tab = pre.getTask().length() / 8;
-            System.out.println(pre.getCode() + "\t" + pre.getTask() + tabber((int)Math.floor(tab)) + "Doing Now");
+            System.out.println(YELLOW+pre.getCode() + "\t" + pre.getTask() + tabber((int)Math.floor(tab)) + "Doing Now"+RESET);
         }
     }
 
@@ -72,24 +73,8 @@ public class Present extends ToDo implements Comparable<Present> {
         return true;
     }
 
-    public boolean isDaily() {
-        return daily;
-    }
-
-    public void setDaily(boolean daily) {
-        this.daily = daily;
-    }
-
-    public boolean isWeekly() {
-        return weekly;
-    }
-
-    public void setWeekly(boolean weekly) {
-        this.weekly = weekly;
-    }
-
     @Override
     public String toString() {
-        return getCode() + ":" + getTask();
+        return getCode() + ":" + getTask()+ ":" + isDaily() + ":" + isWeekly();
     }
 }

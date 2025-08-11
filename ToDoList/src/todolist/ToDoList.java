@@ -20,6 +20,11 @@ public class ToDoList {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        final String RESET = "\u001B[0m";
+        final String RED = "\u001B[31m";
+        final String GREEN = "\u001B[32m";
+        final String YELLOW = "\u001B[33m";
+        final String BLUE = "\u001B[34m";
 
         File mainFile = new File("ToDoList.txt");
 
@@ -36,10 +41,14 @@ public class ToDoList {
                 switch (code.charAt(0)) {//Create a obj that gets stored in a static arraylist
                     case 'F' -> {
                         LocalDate due = LocalDate.parse(scLine.next());
-                        ToDo temp = new Future(task, code, due);
+                        boolean day = Boolean.parseBoolean(scLine.next());
+                        boolean week = Boolean.parseBoolean(scLine.next());
+                        ToDo temp = new Future(task, code, due, day, week);
                     }
                     case 'N' -> {
-                        ToDo temp = new Present(task, code);
+                        boolean day = Boolean.parseBoolean(scLine.next());
+                        boolean week = Boolean.parseBoolean(scLine.next());
+                        ToDo temp = new Present(task, code, day, week);
                     }
                     case 'P' -> {
                         LocalDate due = LocalDate.parse(scLine.next());
@@ -61,27 +70,29 @@ public class ToDoList {
 
         boolean loop = true;//Loops through code until nothing is entered
         LocalDate now = LocalDate.now();
-        String time = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm"));
+        
         do {
             Scanner input = new Scanner(System.in);
             System.out.println("\n1 Display | 2 Remove | 3 New | 4 Change Down | 5 Change Up");
             System.out.println("6 Clear | 7 Edit Date | 8 Edit Task | 9 Increase | 10 Decrease");
-            System.out.println("11 Add Recurence");
+            System.out.println("11 Add Recurrence | 12 Remove Recurrence");
+            
             switch (input.nextLine()) {
                 case "" -> {//End Loop
                     loop = false;
                 }
                 case "1" -> {//Display arrList and static values
+                    String time = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm"));
 
                     System.out.println("-------------------------------------");
-                    System.out.println("Today's date: " + now + "\t" + time);
+                    System.out.println(BLUE + "Today's date: " + now + "\t" + time + RESET);
                     System.out.println("-------------------------------------");
                     System.out.println("Code:\tTask:" + ToDo.tabber(0) + "Dates:");
-                    System.out.println("\nFuture:" + Future.getAlFut().size());
+                    System.out.println(RED + "\nFuture:" + Future.getAlFut().size() + RESET);
                     Future.displayFuture();
-                    System.out.println("\nPresent:" + Present.getAlPre().size());
+                    System.out.println(YELLOW + "\nPresent:" + Present.getAlPre().size() + RESET);
                     Present.displayPresent();
-                    System.out.println("\nPast:" + Past.getAlPas().size());
+                    System.out.println(GREEN + "\nPast:" + Past.getAlPas().size() + RESET);
                     Past.displayPast();
                     System.out.println("-------------------------------------");
                 }
@@ -90,7 +101,7 @@ public class ToDoList {
                     Scanner remove = new Scanner(System.in);
                     System.out.println("\nWhat would you like to remove");
                     String rmv = remove.nextLine();
-                    for (int i = 0; i < Future.getAlFut().size(); i++) {
+                    for (int i = 0; i < Future.getAlFut().size() && hasFound == false; i++) {
                         if (Future.getAlFut().get(i).getTask().equalsIgnoreCase(rmv) || Future.getAlFut().get(i).getCode().equalsIgnoreCase(rmv)) {
                             Future.getAlFut().remove(i);
                             hasFound = true;
@@ -131,11 +142,11 @@ public class ToDoList {
                     Scanner changeDown = new Scanner(System.in);
                     System.out.println("\nWhat would you like to change");
                     String chngDwn = changeDown.nextLine();
-                    for (int i = 0; i < Future.getAlFut().size(); i++) {
+                    for (int i = 0; i < Future.getAlFut().size() && hasFound == false; i++) {
 
                         if (Future.getAlFut().get(i).getTask().equalsIgnoreCase(chngDwn) || Future.getAlFut().get(i).getCode().equalsIgnoreCase(chngDwn)) {
 
-                            ToDo temp = new Present(Future.getAlFut().get(i).getTask(),Future.getAlFut().get(i).isDaily(),Future.getAlFut().get(i).isWeekly());
+                            ToDo temp = new Present(Future.getAlFut().get(i).getTask(), Future.getAlFut().get(i).isDaily(), Future.getAlFut().get(i).isWeekly());
                             Future.getAlFut().remove(i);
                             hasFound = true;
                             break;
@@ -144,7 +155,9 @@ public class ToDoList {
                     for (int i = 0; i < Present.getAlPre().size() && hasFound == false; i++) {
 
                         if (Present.getAlPre().get(i).getTask().equalsIgnoreCase(chngDwn) || Present.getAlPre().get(i).getCode().equalsIgnoreCase(chngDwn)) {
-                            if(Present.getAlPre().get(i).isDaily()){}
+                            if (Present.getAlPre().get(i).isDaily() || Present.getAlPre().get(i).isWeekly()) {
+                                ToDo temp = new Future(Present.getAlPre().get(i).getTask(), Present.getAlPre().get(i).isDaily(), Present.getAlPre().get(i).isWeekly());
+                            }
                             ToDo temp = new Past(Present.getAlPre().get(i).getTask());
                             Present.getAlPre().remove(i);
                             hasFound = true;
@@ -165,13 +178,12 @@ public class ToDoList {
                     Scanner changeUp = new Scanner(System.in);
                     System.out.println("\nWhat would you like to change");
                     String chngP = changeUp.nextLine();
-                    for (int i = 0; i < Past.getAlPas().size(); i++) {
+                    for (int i = 0; i < Past.getAlPas().size() && hasFound == false; i++) {
 
                         if (Past.getAlPas().get(i).getTask().equalsIgnoreCase(chngP) || Past.getAlPas().get(i).getCode().equalsIgnoreCase(chngP)) {
 
-                            String changePastTask = Past.getAlPas().get(i).getTask();
+                            ToDo temp = new Present(Past.getAlPas().get(i).getTask());
                             Past.getAlPas().remove(i);
-                            ToDo temp = new Present(changePastTask);
                             hasFound = true;
                             break;
 
@@ -181,9 +193,8 @@ public class ToDoList {
 
                         if (Present.getAlPre().get(i).getTask().equalsIgnoreCase(chngP) || Present.getAlPre().get(i).getCode().equalsIgnoreCase(chngP)) {
 
-                            String changePresentTask = Present.getAlPre().get(i).getTask();
+                            ToDo temp = new Future(Present.getAlPre().get(i).getTask(), Present.getAlPre().get(i).isDaily(), Present.getAlPre().get(i).isWeekly());
                             Present.getAlPre().remove(i);
-                            ToDo temp = new Future(changePresentTask);
                             hasFound = true;
                             break;
 
@@ -223,7 +234,8 @@ public class ToDoList {
                             String newDue = found.nextLine();
 
                             if (Future.isValidPattern(newDue)) {
-                                /*The isValidPattern method takes the date entered and uses LocalDate.parse to check
+                                /*The isValidPattern method takes the date entered 
+                                and uses LocalDate.parse to check
                               if the date entered is the same as the pattern
                               if it is not it gives a datetime exception
                               I use a try catch to return true or false*/
@@ -248,7 +260,7 @@ public class ToDoList {
                     System.out.println("\nWhich Task would you like to edit");
                     String edited = edit.nextLine();
 
-                    for (int i = 0; i < Future.getAlFut().size(); i++) {
+                    for (int i = 0; i < Future.getAlFut().size() && hasFound == false; i++) {
                         if (Future.getAlFut().get(i).getTask().equalsIgnoreCase(edited) || Future.getAlFut().get(i).getCode().equalsIgnoreCase(edited)) {
                             System.out.println("\nTask: " + Future.getAlFut().get(i).getTask());
                             Scanner change = new Scanner(System.in);
@@ -302,7 +314,7 @@ public class ToDoList {
                     System.out.println("\nWhich Task would you like to increase");
                     String edited = edit.nextLine();
 
-                    for (int i = 0; i < Future.getAlFut().size(); i++) {
+                    for (int i = 0; i < Future.getAlFut().size() && hasFound == false; i++) {
                         if (Future.getAlFut().get(i).getTask().equalsIgnoreCase(edited) || Future.getAlFut().get(i).getCode().equalsIgnoreCase(edited)) {
                             Future.getAlFut().get(i).setPriority(Future.getAlFut().get(i).getPriority() + 1);
                             hasFound = true;
@@ -326,7 +338,7 @@ public class ToDoList {
                     System.out.println("\nWhich Task would you like to decrease");
                     String edited = edit.nextLine();
 
-                    for (int i = 0; i < Future.getAlFut().size(); i++) {
+                    for (int i = 0; i < Future.getAlFut().size() && hasFound == false; i++) {
                         if (Future.getAlFut().get(i).getTask().equalsIgnoreCase(edited) || Future.getAlFut().get(i).getCode().equalsIgnoreCase(edited)) {
                             Future.getAlFut().get(i).setPriority(Future.getAlFut().get(i).getPriority() - 1);
                             hasFound = true;
@@ -344,8 +356,8 @@ public class ToDoList {
                         System.out.println("Not Found");
                     }
                 }
-                case "11" ->{
-                boolean hasFound = false;
+                case "11" -> {
+                    boolean hasFound = false;
                     Scanner recur = new Scanner(System.in);
                     System.out.println("\n1 Daily | 2 Weekly");
                     String dailyOrWeekly = recur.nextLine();
@@ -353,7 +365,7 @@ public class ToDoList {
                     System.out.println("\nWhich Task");
                     String edited = task.nextLine();
 
-                    for (int i = 0; i < Future.getAlFut().size(); i++) {
+                    for (int i = 0; i < Future.getAlFut().size() && hasFound == false; i++) {
                         if (Future.getAlFut().get(i).getTask().equalsIgnoreCase(edited) || Future.getAlFut().get(i).getCode().equalsIgnoreCase(edited)) {
                             Future.getAlFut().get(i).setDaily((dailyOrWeekly.equals("1")));
                             Future.getAlFut().get(i).setWeekly((dailyOrWeekly.equals("2")));
@@ -364,6 +376,32 @@ public class ToDoList {
                         if (Present.getAlPre().get(i).getTask().equalsIgnoreCase(edited) || Present.getAlPre().get(i).getCode().equalsIgnoreCase(edited)) {
                             Present.getAlPre().get(i).setDaily((dailyOrWeekly.equals("1")));
                             Present.getAlPre().get(i).setWeekly((dailyOrWeekly.equals("2")));
+                            hasFound = true;
+                        }
+                    }
+                    if (hasFound == true) {
+                        System.out.println("Done");
+                    } else {
+                        System.out.println("Not Found");
+                    }
+                }
+                case "12" -> {
+                    boolean hasFound = false;
+                    Scanner task = new Scanner(System.in);
+                    System.out.println("\nWhich Task");
+                    String edited = task.nextLine();
+
+                    for (int i = 0; i < Future.getAlFut().size() && hasFound == false; i++) {
+                        if (Future.getAlFut().get(i).getTask().equalsIgnoreCase(edited) || Future.getAlFut().get(i).getCode().equalsIgnoreCase(edited)) {
+                            Future.getAlFut().get(i).setDaily(false);
+                            Future.getAlFut().get(i).setWeekly(false);
+                            hasFound = true;
+                        }
+                    }
+                    for (int i = 0; i < Present.getAlPre().size() && hasFound == false; i++) {
+                        if (Present.getAlPre().get(i).getTask().equalsIgnoreCase(edited) || Present.getAlPre().get(i).getCode().equalsIgnoreCase(edited)) {
+                            Present.getAlPre().get(i).setDaily(false);
+                            Present.getAlPre().get(i).setWeekly(false);
                             hasFound = true;
                         }
                     }

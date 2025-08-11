@@ -31,7 +31,7 @@ public class Past extends ToDo {
         for (Past pas : alPas) {
             
             double tab = pas.getTask().length()/8;
-            System.out.println(pas.getCode()+"\t"+pas.getTask()+tabber((int)Math.floor(tab))+pas.dueDate);
+            System.out.println(GREEN+pas.getCode()+"\t"+pas.getTask()+tabber((int)Math.floor(tab))+pas.dueDate+RESET);
         }
     }
 
